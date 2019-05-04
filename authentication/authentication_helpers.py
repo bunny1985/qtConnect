@@ -1,48 +1,54 @@
-import hashlib, binascii, os
+from bcrypt import hashpw, gensalt, checkpw
+
+from infrastructure.redis import db
 
 
 def _hash_password(password):
     """Hash a password for storing."""
-    salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
-    pwdhash = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'),
-                                  salt, 100000)
-    pwdhash = binascii.hexlify(pwdhash)
-    return (salt + pwdhash).decode('ascii')
+    if type(password) is str:
+        password = password.encode('utf-8')
+    return hashpw(password, gensalt())
 
 
-def _verify_password(stored_password, provided_password):
+def _verify_password(stored_password_hash, provided_password):
     """Verify a stored password against one provided by user"""
-    salt = stored_password[:64]
-    stored_password = stored_password[64:]
-    pwdhash = hashlib.pbkdf2_hmac('sha512',
-                                  provided_password.encode('utf-8'),
-                                  salt.encode('ascii'),
-                                  100000)
-    pwdhash = binascii.hexlify(pwdhash).decode('ascii')
-    return pwdhash == stored_password
+    return checkpw(provided_password.encode('utf-8'), stored_password_hash.encode('utf-8'))
 
 
 class UserBasicData:
     _email: str
     _password: str
 
-    def __init__(self, email, password):
+    def __init__(self, email, password, hash_password=True):
+        """Remember - when retriving from database you have a password hash already - so dont hash it one more time"""
         self._email = email
-        self._password = _hash_password(password)
+        if hash_password:
+            self._password = _hash_password(password)
+        else:
+            self._password = password
 
     def get_password(self) -> str:
         return self._password
 
+    def get_mail(self) -> str:
+        return self._email
+
     def __str__(self):
         return f"{self._email}:{self._password}"
+
+    def to_ditctionary(self):
+        return {"email": self._email, "password": self._password}
 
 
 class AuthenticationManager:
     def get_user_by_email(self, mail: str) -> UserBasicData:
-        pass
+        u = db.Hash(f"users:{mail}")
 
-    def save_user(user_basic_data: UserBasicData):
-        pass
+        return UserBasicData(u["email"], u["password"], hash_password=False)
+
+    def save_user(self, user_basic_data: UserBasicData):
+        u = db.Hash(f"users:{user_basic_data.get_mail()}")
+        u.update(user_basic_data.to_ditctionary())
 
     def verify_pass_for_user(self, email: str, passworrd: str):
         user = self.get_user_by_email(email)

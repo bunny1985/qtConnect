@@ -4,6 +4,7 @@ RUN mkdir /app
 
 EXPOSE 8000
 
+RUN apk add --no-cache libffi-dev build-base openssl-dev
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
