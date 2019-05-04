@@ -1,0 +1,21 @@
+<html lang="en">
+<head>
+
+</head>
+<body>
+<h1>Helllo</h1>
+<button onclick="clicked()">CLICK ME</button>
+
+<script>
+
+    var webSocket = new WebSocket("ws://0.0.0.0:8000/events/feed");
+    webSocket.onopen = function (event) {
+        webSocket.send("Here's some text that the server is urgently awaiting!");
+    };
+    clicked = () => {
+        alert("1");
+        webSocket.send("say hello");
+    }
+</script>
+</body>
+</html>
