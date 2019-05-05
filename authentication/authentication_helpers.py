@@ -2,6 +2,8 @@ from bcrypt import hashpw, gensalt, checkpw
 
 from infrastructure.redis import db
 
+from typing import Optional
+
 
 def _hash_password(password):
     """Hash a password for storing."""
@@ -37,12 +39,17 @@ class UserBasicData:
         return f"{self._email}:{self._password}"
 
     def to_ditctionary(self):
-        return {"email": self._email, "password": self._password}
+        return {"user_id": self._email, "email": self._email, "password": self._password}
 
 
 class AuthenticationManager:
-    def get_user_by_email(self, mail: str) -> UserBasicData:
-        u = db.Hash(f"users:{mail}")
+    def get_user_by_email(self, mail: str) -> Optional[UserBasicData]:
+        key = f"users:{mail}"
+        # noinspection PyUnresolvedReferences
+        if not db.exists(key):
+            return None
+
+        u = db.Hash(key)
 
         return UserBasicData(u["email"], u["password"], hash_password=False)
 
