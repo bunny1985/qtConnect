@@ -15,7 +15,7 @@ def retrieve_user(request, *args, **kwargs):
 
     user_id = payload.get("user_id")
     user = AuthenticationManager().get_user_by_email(user_id)
-    user = user.to_ditctionary()
+    user = user.to_ditct()
     user["password"] = ""
     return user
 
@@ -35,7 +35,7 @@ async def authenticate(request, *args, **kwargs):
     user = authentication_manager.get_user_by_email(username)
 
     # mask password
-    user = user.to_ditctionary()
+    user = user.to_ditct()
     user["password"] = ""
     return user
 
@@ -51,6 +51,7 @@ class Register(BaseEndpoint):
         user = UserBasicData(email, password, hash_password=True)
 
         manager.save_user(user)
+        user = user.to_ditct()
 
         access_token, output = await self.responses.get_access_token_output(
             request,

@@ -38,7 +38,7 @@ class UserBasicData:
     def __str__(self):
         return f"{self._email}:{self._password}"
 
-    def to_ditctionary(self):
+    def to_ditct(self):
         return {"user_id": self._email, "email": self._email, "password": self._password}
 
 
@@ -55,7 +55,7 @@ class AuthenticationManager:
 
     def save_user(self, user_basic_data: UserBasicData):
         u = db.Hash(f"users:{user_basic_data.get_mail()}")
-        u.update(user_basic_data.to_ditctionary())
+        u.update(user_basic_data.to_ditct())
 
     def verify_pass_for_user(self, email: str, passworrd: str):
         user = self.get_user_by_email(email)

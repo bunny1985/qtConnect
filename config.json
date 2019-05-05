@@ -1,7 +1,0 @@
-{
-  "redis": {
-    "port": 32780,
-    "server": "localhost"
-  },
-  "LOGO": "QT_CONNECT"
-}

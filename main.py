@@ -7,7 +7,7 @@ from settings.security import SecuritySeettings
 from settings.cors import CorsSettings
 from sanicApp import app
 from middlewares.cors import CorsMiddleWare
-from api.authentication import authenticate, additional_views, SecurityConfiguration, retrieve_user
+from api.authentication_api import authenticate, additional_views, SecurityConfiguration, retrieve_user
 
 Initialize(app, authenticate=authenticate, retrieve_user=retrieve_user, class_views=additional_views,
            strict_slashes=True, configuration_class=SecurityConfiguration)
